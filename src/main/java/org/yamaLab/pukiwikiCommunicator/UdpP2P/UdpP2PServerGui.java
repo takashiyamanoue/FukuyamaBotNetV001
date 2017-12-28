@@ -28,6 +28,7 @@ public class UdpP2PServerGui {
 	
 	private JScrollPane serverMessageAreaScrollPane;
 	private JTextArea serverMessageArea;
+	private JButton restartButton;
 
 	UdpP2PServerGui(UdpP2P mc){
 		initUdpP2PServerGui();
@@ -42,7 +43,28 @@ public class UdpP2PServerGui {
 		mainPanel.setLayout(null);
         int x1=1;
         int x2=95;
-
+        {
+			int h=0;
+        	restartButton=new JButton("restart");
+		    restartButton.addActionListener(new ActionListener() {
+			   public void actionPerformed(ActionEvent e) {
+				  writeServerMessage("restart");
+				  echoServer.init();
+			   }
+		    });
+		    restartButton.setBounds(100, h, 165, 29);
+		    mainPanel.add(restartButton);
+        	
+		    JButton savePropertiesButton = new JButton("SaveProperties");
+		    savePropertiesButton.addActionListener(new ActionListener() {
+			   public void actionPerformed(ActionEvent e) {
+				  System.out.println("Save Properties");
+			   }
+		    });
+		    savePropertiesButton.setBounds(530, 0, 165, 29);
+		    mainPanel.add(savePropertiesButton);
+	    }
+	       
 		{
 			int h=30;
 			udpHoleLabel = new JLabel();
@@ -61,19 +83,6 @@ public class UdpP2PServerGui {
 			}
 		}
 
-		JButton savePropertiesButton = new JButton("SaveProperties");
-		savePropertiesButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("Save Properties");
-//				connectTwitter();
-//				reflectProperties();
-//				saveProperties();
-			}
-		});
-		savePropertiesButton.setBounds(530, 0, 165, 29);
-		mainPanel.add(savePropertiesButton);
-
-		
 		{		
 //			int h=540;
 			int h=230;

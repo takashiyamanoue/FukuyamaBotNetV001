@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
 public class EchoServer implements Runnable {
 	private UdpP2PServerGui gui;
 	private DatagramSocket socket;
-	private Map<String, InetSocketAddress> addressMap = new HashMap<String, InetSocketAddress>();
+	private Map<String, InetSocketAddress> addressMap = new HashMap();
 	private Thread me;
 	/**
 	 * @param args
@@ -33,9 +33,18 @@ public class EchoServer implements Runnable {
 		g.setServer(this);
 		init();
 	}	
-	private void init(){
+	public void stop(){
+		me=null;
+		if(socket!=null){
+		    socket.close();
+		}
+	}
+	public void init(){
+		addressMap=new HashMap();
+		this.stop();
 		try{
 		socket = new DatagramSocket(12345);
+		socket.setReuseAddress(true);
 		gui.writeServerMessage("start server.");
 		Enumeration e = NetworkInterface.getNetworkInterfaces();
 		while(e.hasMoreElements())
@@ -60,7 +69,7 @@ public class EchoServer implements Runnable {
 	public void run() {
 		DatagramPacket recvPacket;
 		DatagramPacket sendPacket;
-		while(true) {
+		while(me!=null) {
 			try {
 				recvPacket = new DatagramPacket(new byte[1024], 1024);
 				socket.receive(recvPacket);
@@ -73,17 +82,18 @@ public class EchoServer implements Runnable {
 				if(!addressMap.containsKey(recvkey)) {
 					gui.writeServerMessage("new server key:" + recvkey);
 					// 前クライアントに新しい人が追加されたことを通知しておく。
-					int ix=1;
+					int ix=0;
 					for(String key : addressMap.keySet()) {
 						gui.writeServerMessage("known key:" + key);
 						sendPacket = new DatagramPacket(recvkey.getBytes(), 0, recvkey.getBytes().length, addressMap.get(key));
-						socket.send(sendPacket);
+						for(int i=0;i<4;i++) socket.send(sendPacket);
 						sendPacket = new DatagramPacket(key.getBytes(), 0, key.getBytes().length, address);
-						socket.send(sendPacket);
+						for(int i=0;i<4;i++) socket.send(sendPacket);
 						StringTokenizer st=new StringTokenizer(key,":");
 						String ips=st.nextToken();
 						String ps=st.nextToken();
 						gui.setIpPort(ix, ips, ps, "server");
+						ix++;
 					}
 					// あたらしいクライアントが追加された。
 					addressMap.put(recvkey, address);

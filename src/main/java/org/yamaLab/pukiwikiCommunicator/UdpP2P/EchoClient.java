@@ -39,9 +39,11 @@ public class EchoClient implements Runnable {
 	public EchoClient()  {
 	}
 	public void setServerAddress(String x){
+		this.stop();
 		server=x;
 		try{
 		    socket = new DatagramSocket();
+		    socket.setReuseAddress(true);
 		}
 		catch(Exception e){
 			gui.writeClientMessage("EchoClient new DatagramSocket error:"+e);			
@@ -86,7 +88,7 @@ public class EchoClient implements Runnable {
 		for(String key : socketMap.keySet()) {
 			try{
 			sendPacket = new DatagramPacket(line.getBytes(), 0, line.getBytes().length, socketMap.get(key));
-			socket.send(sendPacket);
+			for(int i=0;i<4;i++) socket.send(sendPacket);
 			}
 			catch(Exception e){
 				gui.writeClientMessage("error:"+e);
@@ -105,7 +107,7 @@ public class EchoClient implements Runnable {
 				InetSocketAddress x=socketMap.get(key);
 				if(!x.equals(a)){ // do not return the same packet to the direct sender.
 			      sendPacket = new DatagramPacket(line.getBytes(), 0, line.getBytes().length, socketMap.get(key));
-			      socket.send(sendPacket);
+			      for(int i=0;i<4;i++) socket.send(sendPacket);
 				}
 			}
 			catch(Exception e){
@@ -114,6 +116,20 @@ public class EchoClient implements Runnable {
 		}
 		
 	}	
+	public void writeClientMessageTo(String line, InetSocketAddress a){
+		// 送信動作
+		System.out.println("line data:" + line);
+		if(gui!=null){
+			gui.writeClientMessage(line);
+		}
+		try{
+	      sendPacket = new DatagramPacket(line.getBytes(), 0, line.getBytes().length, a);
+	      for(int i=0;i<4;i++) socket.send(sendPacket);
+		}
+		catch(Exception e){
+			gui.writeClientMessage("error:"+e);
+		}
+	}		
 
 	public void run() {
 		DatagramPacket recvPacket;
@@ -128,8 +144,9 @@ public class EchoClient implements Runnable {
 				gui.writeClientMessage(line);
 				gui.writeClientMessage("data:"+data);
 				if(data.startsWith("broadcast ")){
-					InetSocketAddress address = new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort());
-					main.parseBroadcastCommand(data.substring("broadcast ".length()),address);
+					InetSocketAddress sockaddress = new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort());
+					main.parseBroadcastCommand(data.substring("broadcast ".length()),sockaddress);
+					this.writeClientMessageTo("ack", sockaddress);
 				}
 				if(data.startsWith("/") && data.contains(":")) {
 					gui.writeClientMessage("this data for socket Connection");
@@ -149,18 +166,25 @@ public class EchoClient implements Runnable {
 		}
 	}
 	private void updateNextGui(){
-		int ix=1;
+		int ix=0;
 		for(String key : socketMap.keySet()) {
 			StringTokenizer st=new StringTokenizer(key,":");
 			String ipx=st.nextToken();
 			String ps=st.nextToken();
 			gui.setIpPort(ix, ipx, ps, "client");
+			ix++;
 		}		
 	}
 	private void start(){
 		if(me==null){
 			me=new Thread(this,"udp-echo-client");
 			me.start();
+		}
+	}
+	private void stop(){
+		me=null;
+		if(socket!=null){
+		   socket.close();
 		}
 	}
 	public String getLog(){
