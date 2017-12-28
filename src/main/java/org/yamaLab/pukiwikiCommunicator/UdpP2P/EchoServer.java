@@ -35,9 +35,6 @@ public class EchoServer implements Runnable {
 	}	
 	public void stop(){
 		me=null;
-		if(socket!=null){
-		    socket.close();
-		}
 	}
 	public void init(){
 		if(addressMap==null){
@@ -50,6 +47,10 @@ public class EchoServer implements Runnable {
 		}	
 		addressMap.clear();
 		this.stop();
+		if(socket!=null){
+		    socket.close();
+		    socket=null;
+		}		
 		try{
 		socket = new DatagramSocket(12345);
 		socket.setReuseAddress(true);
@@ -100,6 +101,8 @@ public class EchoServer implements Runnable {
 					}
 					
 					ix=0;
+					// あたらしいクライアントが追加された。
+					addressMap.put(recvkey, address);					
 					for(String key : addressMap.keySet()) {
 						gui.writeServerMessage("known key:" + key);
 						sendPacket = new DatagramPacket(recvkey.getBytes(), 0, recvkey.getBytes().length, addressMap.get(key));
@@ -112,8 +115,6 @@ public class EchoServer implements Runnable {
 						gui.setIpPort(ix, ips, ps, "server");
 						ix++;
 					}
-					// あたらしいクライアントが追加された。
-					addressMap.put(recvkey, address);
 				}
 				sendPacket = new DatagramPacket(recvPacket.getData(), 0, recvPacket.getLength(), address);
 				socket.send(sendPacket);

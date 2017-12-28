@@ -28,6 +28,9 @@ public class UdpP2PClientGui
 	private int maxID=30;
 	private JPanel mainPanel;
 	private UdpP2P controller;
+
+	private JScrollPane commandAreaScrollPane;
+	private JTextArea commandArea;
 	
 	private JScrollPane clientMessageAreaScrollPane;
 	private JTextArea clientMessageArea;
@@ -125,6 +128,20 @@ public class UdpP2PClientGui
 		{		
 //			int h=540;
 			int h=290;
+		    commandAreaScrollPane = new JScrollPane();
+		    commandAreaScrollPane.setBounds(x2, h, 550, 120);
+		    mainPanel.add(commandAreaScrollPane);
+		
+		    commandArea = new JTextArea();
+		    commandAreaScrollPane.setViewportView(commandArea);		
+		
+		    JLabel lblMessage = new JLabel("command:");
+		    lblMessage.setBounds(x1, h, 101, 16);
+		    mainPanel.add(lblMessage);
+		}		
+		{		
+//			int h=540;
+			int h=420;
 		    clientMessageAreaScrollPane = new JScrollPane();
 		    clientMessageAreaScrollPane.setBounds(x2, h, 550, 120);
 		    mainPanel.add(clientMessageAreaScrollPane);
@@ -184,7 +201,20 @@ public class UdpP2PClientGui
 		}
 		clientMessageArea.setText(clientMessage);
 	}
-
+	String commandList;
+	public void writeCommand(String x){
+		System.out.println(x);
+		if(commandList==null){
+			commandList=x;
+		}
+		else{
+			if(commandList.length()>5000){
+				commandList=commandList.substring(commandList.length()-4900);
+			}
+			commandList=commandList+"\n"+x;
+		}
+		commandArea.setText(commandList);
+	}
 	EchoClient echoClient;
 	public void setClient(EchoClient ec){
 		echoClient=ec;

@@ -46,6 +46,16 @@ public class EchoClient implements Runnable {
 	}
 	public void setServerAddress(String x){
 		this.stop();
+		if(socket!=null){
+			   socket.close();
+			   socket=null;
+		}
+		if(socketMap!=null){
+		   socketMap.clear();
+		}
+		else{
+			socketMap=new HashMap();
+		}
 		server=x;
 		try{
 		    socket = new DatagramSocket();
@@ -209,12 +219,7 @@ public class EchoClient implements Runnable {
 	}
 	private void stop(){
 		me=null;
-		if(socket!=null){
-		   socket.close();
-		}
-		if(socketMap!=null){
-		   socketMap.clear();
-		}
+
 	}
 	public String getLog(){
 		return "";

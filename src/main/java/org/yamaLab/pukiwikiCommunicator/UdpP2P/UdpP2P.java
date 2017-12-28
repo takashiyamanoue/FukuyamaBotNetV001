@@ -3,6 +3,9 @@ package org.yamaLab.pukiwikiCommunicator.UdpP2P;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
@@ -152,7 +155,7 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 	}
 	public boolean parseBroadcastCommand(String line,InetSocketAddress a){
 		/*
-		 *  broadcast id=<int> ttl=<int> cmd=<strConst> arg=<strConst>
+		 *  broadcast id=<int> ttl=<int> cmd=<strConst> 
 		 *  ... the line does not include "broadcast"
 		 */
 		String[] rest=new String[1];
@@ -175,17 +178,11 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 		line=rest[0];
 		if(!Util.parseStrConst(line, strc, rest)) return false;
 		String cmd=strc[0];
-		line=rest[0];
-		line=Util.skipSpace(line);
-		if(!Util.parseKeyWord(line, "arg=", rest)) return false;
-		line=rest[0];
-		if(!Util.parseStrConst(line, strc, rest)) return false;
-		String arg=strc[0];
-		forwardBroadcastCommand(id,ttl,cmd,arg,a);
-		execCommand(cmd,arg);
+		forwardBroadcastCommand(id,ttl,cmd,a);
+		execCommand(cmd);
 		return true;		
 	}
-	private void forwardBroadcastCommand(int id,int ttl, String cmd, String arg, InetSocketAddress a){
+	private void forwardBroadcastCommand(int id,int ttl, String cmd, InetSocketAddress a){
 		if(idList==null) {
 			idList=new Vector();
 			idList.add(Integer.valueOf(id));
@@ -199,7 +196,7 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 		}
 		if(ttl==0) return;
 		String forwardCommand="broadcast id="+id+" ttl="+(ttl-1)
-				+" cmd=\""+cmd+"\" arg=\""+arg+"\".";
+				+" cmd=\""+cmd+"\".";
 		if(forwardCommand.length()>998){
 			echoClient.writeClientMessage("too long broadcast message:"+forwardCommand);
 		}
@@ -211,8 +208,19 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 		    echoClient.writeClientMessageExcept(forwardCommand, a);
 		}
 	}
-	private void execCommand(String id, String arg){
-		
+	private void execCommand(String cmd){
+		String line="";
+		long ptime=System.currentTimeMillis();
+		try{
+//			ptime=packet.getCaptureHeader().timestampInMillis();
+			DateFormat df=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+		    line=""+df.format(new Date(ptime));
+		    line=line+" "+cmd;
+		    clientGui.writeCommand(cmd);
+		}
+		catch(Exception e){
+			clientGui.writeClientMessage("command error:"+e);
+		}
 	}
 	private int getNewID(){
 		try{
