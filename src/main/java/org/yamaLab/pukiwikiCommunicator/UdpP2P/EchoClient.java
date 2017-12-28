@@ -50,6 +50,7 @@ public class EchoClient implements Runnable {
 			   socket.close();
 			   socket=null;
 		}
+		clearAddressMap();
 		if(socketMap!=null){
 		   socketMap.clear();
 		}

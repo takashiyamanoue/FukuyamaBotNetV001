@@ -99,7 +99,6 @@ public class EchoServer implements Runnable {
 						gui.setIpPort(ix, "", "", "server");
 						ix++;
 					}
-					
 					ix=0;
 					// あたらしいクライアントが追加された。
 					addressMap.put(recvkey, address);					

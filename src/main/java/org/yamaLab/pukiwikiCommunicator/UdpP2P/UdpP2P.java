@@ -216,7 +216,7 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 			DateFormat df=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
 		    line=""+df.format(new Date(ptime));
 		    line=line+" "+cmd;
-		    clientGui.writeCommand(cmd);
+		    clientGui.writeCommand(line);
 		}
 		catch(Exception e){
 			clientGui.writeClientMessage("command error:"+e);
