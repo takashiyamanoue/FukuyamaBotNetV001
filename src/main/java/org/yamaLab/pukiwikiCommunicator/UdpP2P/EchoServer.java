@@ -100,18 +100,24 @@ public class EchoServer implements Runnable {
 						ix++;
 					}
 					ix=0;
-					// あたらしいクライアントが追加された。
-					addressMap.put(recvkey, address);					
 					for(String key : addressMap.keySet()) {
 						gui.writeServerMessage("known key:" + key);
 						sendPacket = new DatagramPacket(recvkey.getBytes(), 0, recvkey.getBytes().length, addressMap.get(key));
-						for(int i=0;i<4;i++) socket.send(sendPacket);
+						for(int i=0;i<3;i++) socket.send(sendPacket);
 						sendPacket = new DatagramPacket(key.getBytes(), 0, key.getBytes().length, address);
-						for(int i=0;i<4;i++) socket.send(sendPacket);
+						for(int i=0;i<3;i++) socket.send(sendPacket);
+					}
+					// あたらしいクライアントが追加された。
+					addressMap.put(recvkey, address);					
+					for(String key : addressMap.keySet()) {
 						StringTokenizer st=new StringTokenizer(key,":");
 						String ips=st.nextToken();
-						String ps=st.nextToken();
-						gui.setIpPort(ix, ips, ps, "server");
+						String ps=st.nextToken();						
+						String memo="server";
+						if(key.equals(recvkey)){
+							memo="new server";
+						}
+						gui.setIpPort(ix, ips, ps, memo);
 						ix++;
 					}
 				}
