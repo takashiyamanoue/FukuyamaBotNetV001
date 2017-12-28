@@ -148,6 +148,10 @@ public class EchoClient implements Runnable {
 					main.parseBroadcastCommand(data.substring("broadcast ".length()),sockaddress);
 					this.writeClientMessageTo("ack", sockaddress);
 				}
+				if(data.startsWith("clearAddressMap")) {
+					gui.writeClientMessage("clearAddressMap");
+					clearAddressMap();
+				}		
 				if(data.startsWith("/") && data.contains(":")) {
 					gui.writeClientMessage("this data for socket Connection");
 					String key = data;
@@ -164,6 +168,14 @@ public class EchoClient implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	}
+	private void clearAddressMap(){
+		int ix=0;
+		for(String key : socketMap.keySet()) {
+			gui.setIpPort(ix, "", "", "");
+			ix++;
+		}	
+		socketMap.clear();
 	}
 	private void updateNextGui(){
 		int ix=0;
@@ -185,6 +197,9 @@ public class EchoClient implements Runnable {
 		me=null;
 		if(socket!=null){
 		   socket.close();
+		}
+		if(socketMap!=null){
+		   socketMap.clear();
 		}
 	}
 	public String getLog(){

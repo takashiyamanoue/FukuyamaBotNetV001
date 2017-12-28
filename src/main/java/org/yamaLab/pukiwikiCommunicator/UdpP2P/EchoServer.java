@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
 public class EchoServer implements Runnable {
 	private UdpP2PServerGui gui;
 	private DatagramSocket socket;
-	private Map<String, InetSocketAddress> addressMap = new HashMap();
+	private Map<String, InetSocketAddress> addressMap;
 	private Thread me;
 	/**
 	 * @param args
@@ -40,7 +40,10 @@ public class EchoServer implements Runnable {
 		}
 	}
 	public void init(){
-		addressMap=new HashMap();
+		if(addressMap==null){
+		   addressMap=new HashMap();
+		}
+		addressMap.clear();
 		this.stop();
 		try{
 		socket = new DatagramSocket(12345);
@@ -83,6 +86,15 @@ public class EchoServer implements Runnable {
 					gui.writeServerMessage("new server key:" + recvkey);
 					// 前クライアントに新しい人が追加されたことを通知しておく。
 					int ix=0;
+					for(String key : addressMap.keySet()) {
+						gui.writeServerMessage("clearAddressMap:" + key);
+						sendPacket = new DatagramPacket("clearAddressMap".getBytes(), 0, "clearAddressMap".getBytes().length, addressMap.get(key));
+						for(int i=0;i<4;i++) socket.send(sendPacket);
+						gui.setIpPort(ix, "", "", "server");
+						ix++;
+					}
+					
+					ix=0;
 					for(String key : addressMap.keySet()) {
 						gui.writeServerMessage("known key:" + key);
 						sendPacket = new DatagramPacket(recvkey.getBytes(), 0, recvkey.getBytes().length, addressMap.get(key));
