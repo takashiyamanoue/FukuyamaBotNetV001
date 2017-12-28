@@ -43,6 +43,11 @@ public class EchoServer implements Runnable {
 		if(addressMap==null){
 		   addressMap=new HashMap();
 		}
+		int ix=0;
+		for(String key : addressMap.keySet()) {
+			gui.setIpPort(ix, "", "", "server");
+			ix++;
+		}	
 		addressMap.clear();
 		this.stop();
 		try{

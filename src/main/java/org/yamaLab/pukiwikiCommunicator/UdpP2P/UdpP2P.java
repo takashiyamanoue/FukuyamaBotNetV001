@@ -17,7 +17,7 @@ import org.yamaLab.pukiwikiCommunicator.language.LispObject;
 import org.yamaLab.pukiwikiCommunicator.language.ReadLine;
 import org.yamaLab.pukiwikiCommunicator.language.Util;
 
-public class UdpP2P implements InterpreterInterface {
+public class UdpP2P implements Runnable, InterpreterInterface {
 	InterpreterInterface main;
 	Properties setting;
 	JTabbedPane tabbedPane;
@@ -28,6 +28,8 @@ public class UdpP2P implements InterpreterInterface {
 	EchoServer echoServer;
 	int messageID;
 	Vector<Integer> idList;
+	Thread me;
+	
 	public UdpP2P(InterpreterInterface m) {
 		main=m;
 		applications=new HashMap();
@@ -38,6 +40,7 @@ public class UdpP2P implements InterpreterInterface {
 		echoServer=new EchoServer();
 		echoServer.setGui(serverGui);
 		idList=null;
+		start();
 	}
 	public void setSetting(Properties s){
 		setting=s;
@@ -234,5 +237,31 @@ public class UdpP2P implements InterpreterInterface {
 		}
 		return 0;
 	}
-
+	public void run() {
+		// TODO Auto-generated method stub
+		long prevKeepAliveTime=System.currentTimeMillis();
+		long prevServerInitTime=System.currentTimeMillis();
+		while(me!=null){
+			long currentTime=System.currentTimeMillis();
+			if(currentTime-prevKeepAliveTime>20000){
+				prevKeepAliveTime=currentTime;				
+//				echoClient.setServerAddress();
+				echoClient.writeClientMessage("keepAlive.");
+			}
+			if(currentTime-prevServerInitTime>600000){
+				prevServerInitTime=currentTime;				
+				echoServer.init();
+			}
+		}
+		
+	}
+	private void start(){
+		if(me==null){
+			me=new Thread(this,"UdpP2P keep alive");
+			me.start();
+		}
+	}
+    private void stop(){
+    	me=null;
+    }
 }

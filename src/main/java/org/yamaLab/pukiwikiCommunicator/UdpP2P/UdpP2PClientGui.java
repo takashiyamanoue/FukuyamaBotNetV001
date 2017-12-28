@@ -207,4 +207,7 @@ public class UdpP2PClientGui
 	public void setSendMessage(String x){
 		this.clientSendingMessageField.setText(x);
 	}	
+	public String getServerAddress(){
+		return this.serverAddressField.getText();
+	}
 }

@@ -38,6 +38,12 @@ public class EchoClient implements Runnable {
 	}
 	public EchoClient()  {
 	}
+	public void setServerAddress(){
+		String serverAddress=gui.getServerAddress();
+		if(serverAddress==null) return;
+		if(serverAddress.equals("")) return;
+		setServerAddress(serverAddress);
+	}
 	public void setServerAddress(String x){
 		this.stop();
 		server=x;
@@ -148,6 +154,14 @@ public class EchoClient implements Runnable {
 					main.parseBroadcastCommand(data.substring("broadcast ".length()),sockaddress);
 					this.writeClientMessageTo("ack", sockaddress);
 				}
+				if(data.startsWith("keepAlive")){
+					InetSocketAddress sockaddress = new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort());
+					this.writeClientMessageTo("ack", sockaddress);
+				}
+				if(data.startsWith("init")){
+					InetSocketAddress sockaddress = new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort());
+					this.writeClientMessageTo("ack", sockaddress);
+				}								
 				if(data.startsWith("clearAddressMap")) {
 					gui.writeClientMessage("clearAddressMap");
 					clearAddressMap();
