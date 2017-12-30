@@ -178,22 +178,22 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 		line=rest[0];
 		if(!Util.parseStrConst(line, strc, rest)) return false;
 		String cmd=strc[0];
-		forwardBroadcastCommand(id,ttl,cmd,a);
-		execCommand(cmd);
-		return true;		
-	}
-	private void forwardBroadcastCommand(int id,int ttl, String cmd, InetSocketAddress a){
 		if(idList==null) {
 			idList=new Vector();
 			idList.add(Integer.valueOf(id));
 		}
 		else {
-		    if(idList.contains(Integer.valueOf(id))) return;
+		    if(idList.contains(Integer.valueOf(id))) return true;
 		    if(idList.size()>10){
 			   idList.remove(0);
 		     }
 		     idList.add(Integer.valueOf(id));
-		}
+		}		
+		forwardBroadcastCommand(id,ttl,cmd,a);
+		execCommand(cmd,a);
+		return true;		
+	}
+	private void forwardBroadcastCommand(int id,int ttl, String cmd, InetSocketAddress a){
 		if(ttl==0) return;
 		String forwardCommand="broadcast id="+id+" ttl="+(ttl-1)
 				+" cmd=\""+cmd+"\".";
@@ -208,13 +208,16 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 		    echoClient.writeClientMessageExcept(forwardCommand, a);
 		}
 	}
-	private void execCommand(String cmd){
+	private void execCommand(String cmd, InetSocketAddress a){
 		String line="";
 		long ptime=System.currentTimeMillis();
 		try{
 //			ptime=packet.getCaptureHeader().timestampInMillis();
 			DateFormat df=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
 		    line=""+df.format(new Date(ptime));
+		    String fa=a.getAddress().toString();
+		    int fp=a.getPort();
+		    line=line+" from-"+fa+":"+fp;
 		    line=line+" "+cmd;
 		    clientGui.writeCommand(line);
 		}
