@@ -93,10 +93,10 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 			 * and forward it to the p2p group network.
 			 * 
 			 * The command from the wiki command:
-			 * broadcast cmd=<strConst> arg=<strConst>
+			 * broadcast cmd=<strConst> 
 			 *   ->
 			 * The broadcast command in the p2p group network.
-			 *  broadcast id=<int> ttl=<int> cmd=<strConst> arg=<strConst>
+			 *  broadcast id=<int> ttl=<int> cmd=<strConst> 
 			 */
 			int id=getNewID();
 			int ttl=4;
@@ -215,9 +215,11 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 //			ptime=packet.getCaptureHeader().timestampInMillis();
 			DateFormat df=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
 		    line=""+df.format(new Date(ptime));
-		    String fa=a.getAddress().toString();
-		    int fp=a.getPort();
-		    line=line+" from-"+fa+":"+fp;
+		    if(a!=null){
+		      String fa=a.getAddress().toString();
+		      int fp=a.getPort();
+		      line=line+" from-"+fa+":"+fp;
+		    }
 		    line=line+" "+cmd;
 		    clientGui.writeCommand(line);
 		}

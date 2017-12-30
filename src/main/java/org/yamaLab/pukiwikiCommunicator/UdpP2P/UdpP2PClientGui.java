@@ -10,11 +10,13 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -200,6 +202,12 @@ public class UdpP2PClientGui
 			clientMessage=clientMessage+"\n"+x;
 		}
 		clientMessageArea.setText(clientMessage);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+			  JScrollBar scrollBar = commandAreaScrollPane.getVerticalScrollBar();
+			   scrollBar.setValue(scrollBar.getMaximum());
+			}
+		});			
 	}
 	String commandList;
 	public void writeCommand(String x){
@@ -214,6 +222,12 @@ public class UdpP2PClientGui
 			commandList=commandList+"\n"+x;
 		}
 		commandArea.setText(commandList);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+			  JScrollBar scrollBar = commandAreaScrollPane.getVerticalScrollBar();
+			   scrollBar.setValue(scrollBar.getMaximum());
+			}
+		});	
 	}
 	EchoClient echoClient;
 	public void setClient(EchoClient ec){

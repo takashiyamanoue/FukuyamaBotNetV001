@@ -123,7 +123,7 @@ public class EchoServer implements Runnable {
 				}
 				String registAck="yourHole "+recvPacket.getAddress()+":"+recvPacket.getPort();
 				sendPacket = new DatagramPacket(registAck.getBytes(), 0, registAck.length(), address);
-				socket.send(sendPacket);
+				for(int i=0;i<4;i++) socket.send(sendPacket);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
