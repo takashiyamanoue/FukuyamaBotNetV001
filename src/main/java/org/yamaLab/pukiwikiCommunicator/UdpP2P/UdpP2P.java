@@ -198,14 +198,14 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 		String forwardCommand="broadcast id="+id+" ttl="+(ttl-1)
 				+" cmd=\""+cmd+"\".";
 		if(forwardCommand.length()>998){
-			echoClient.writeClientMessage("too long broadcast message:"+forwardCommand);
+			echoClient.writeMessage("too long broadcast message:"+forwardCommand);
 		}
 //		echoClient.send(forwardCommand);
 		if(a==null){
-			echoClient.writeClientMessage(forwardCommand);			
+			echoClient.spreadUdpPacket(forwardCommand);			
 		}
 		else{
-		    echoClient.writeClientMessageExcept(forwardCommand, a);
+		    echoClient.spreadUdpPacketExcept(forwardCommand, a);
 		}
 	}
 	private void execCommand(String cmd, InetSocketAddress a){
@@ -244,7 +244,7 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 	        }		
 		}
 		catch(Exception e){
-			echoClient.writeClientMessage("UdpP2P.getNewID error:"+e);
+			echoClient.writeMessage("UdpP2P.getNewID error:"+e);
 		}
 		return 0;
 	}
@@ -257,7 +257,7 @@ public class UdpP2P implements Runnable, InterpreterInterface {
 			if(currentTime-prevKeepAliveTime>20000){
 				prevKeepAliveTime=currentTime;				
 //				echoClient.setServerAddress();
-				echoClient.writeClientMessage("keepAlive.");
+				echoClient.spreadUdpPacket("keepAlive.");
 			}
 			if(currentTime-prevServerInitTime>600000){
 				prevServerInitTime=currentTime;				

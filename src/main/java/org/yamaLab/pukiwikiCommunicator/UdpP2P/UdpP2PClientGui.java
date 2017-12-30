@@ -222,7 +222,7 @@ public class UdpP2PClientGui
 	public void clientSendButtonActionPerformed(ActionEvent e){
 		if(echoClient!=null){
 			String x=this.clientSendingMessageField.getText();
-			echoClient.writeClientMessage(x);
+			echoClient.spreadUdpPacket(x);
 		}
 	}
 	public void serverAddressSetButtonActionPerformed(ActionEvent e){

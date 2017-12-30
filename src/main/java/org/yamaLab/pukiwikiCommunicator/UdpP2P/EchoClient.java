@@ -20,6 +20,8 @@ public class EchoClient implements Runnable {
 	private Map<String, InetSocketAddress> socketMap = new HashMap<String, InetSocketAddress>();
 	private Thread me;
 	private UdpP2P main;
+	private InetSocketAddress myHole;
+	private String myHoleStringAddress;
 
 	/**
 	 * @param args
@@ -95,58 +97,51 @@ public class EchoClient implements Runnable {
 		gui.setSendMessage(x);
 		gui.clientSendButtonActionPerformed(null);
 	}	
-
-	public void writeClientMessage(String line){
+    public void writeMessage(String x){
+    	gui.writeClientMessage(x);
+    }
+	public void sendUdpPacket(String line, InetSocketAddress a){
+		  try{
+			    sendPacket = new DatagramPacket(line.getBytes(), 0, line.getBytes().length, a);
+			    for(int i=0;i<4;i++) socket.send(sendPacket);
+			 }
+			 catch(Exception e){
+				gui.writeClientMessage("error:"+e);
+			 }		
+	}
+	public void spreadUdpPacket(String line){
 		// 送信動作
-		System.out.println("line data:" + line);
+		System.out.println("writeClientMessage(" + line+")");
 		if(gui!=null){
 			gui.writeClientMessage(line);
 		}
+		if(socketMap==null) return;
 		for(String key : socketMap.keySet()) {
-			try{
-			sendPacket = new DatagramPacket(line.getBytes(), 0, line.getBytes().length, socketMap.get(key));
-			for(int i=0;i<4;i++) socket.send(sendPacket);
+			if(myHoleStringAddress==null){
+				sendUdpPacket(line,socketMap.get(key));
 			}
-			catch(Exception e){
-				gui.writeClientMessage("error:"+e);
+			else
+			if(key!=myHoleStringAddress){
+				sendUdpPacket(line,socketMap.get(key));
 			}
 		}
 		
 	}
-	public void writeClientMessageExcept(String line, InetSocketAddress a){
+	public void spreadUdpPacketExcept(String line, InetSocketAddress a){
 		// 送信動作
 		System.out.println("line data:" + line);
 		if(gui!=null){
 			gui.writeClientMessage(line);
 		}
+		if(socketMap==null) return;
 		for(String key : socketMap.keySet()) {
-			try{
-				InetSocketAddress x=socketMap.get(key);
-				if(!x.equals(a)){ // do not return the same packet to the direct sender.
-			      sendPacket = new DatagramPacket(line.getBytes(), 0, line.getBytes().length, socketMap.get(key));
-			      for(int i=0;i<4;i++) socket.send(sendPacket);
-				}
-			}
-			catch(Exception e){
-				gui.writeClientMessage("error:"+e);
+			InetSocketAddress x=socketMap.get(key);
+			if(!x.equals(a)){ // do not return the same packet to the direct sender.
+				sendUdpPacket(line,a);
 			}
 		}
 		
 	}	
-	public void writeClientMessageTo(String line, InetSocketAddress a){
-		// 送信動作
-		System.out.println("line data:" + line);
-		if(gui!=null){
-			gui.writeClientMessage(line);
-		}
-		try{
-	      sendPacket = new DatagramPacket(line.getBytes(), 0, line.getBytes().length, a);
-	      for(int i=0;i<4;i++) socket.send(sendPacket);
-		}
-		catch(Exception e){
-			gui.writeClientMessage("error:"+e);
-		}
-	}		
 
 	public void run() {
 		DatagramPacket recvPacket;
@@ -163,20 +158,32 @@ public class EchoClient implements Runnable {
 				if(data.startsWith("broadcast ")){
 					InetSocketAddress sockaddress = new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort());
 					main.parseBroadcastCommand(data.substring("broadcast ".length()),sockaddress);
-					this.writeClientMessageTo("ack", sockaddress);
+					this.sendUdpPacket("ack", sockaddress);
 				}
+				else
 				if(data.startsWith("keepAlive")){
 					InetSocketAddress sockaddress = new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort());
-					this.writeClientMessageTo("ack", sockaddress);
+					this.sendUdpPacket("ack", sockaddress);
 				}
+				else
+				if(data.startsWith("yourHole ")){
+					myHoleStringAddress=data.substring("yourHole ".length());
+					String[] addrData = myHoleStringAddress.substring(1).split(":");
+					String myaddr = addrData[0];
+					int port = Integer.parseInt(addrData[1]);
+					myHole = new InetSocketAddress(myaddr, port);
+				}
+				else
 				if(data.startsWith("init")){
 					InetSocketAddress sockaddress = new InetSocketAddress(recvPacket.getAddress(), recvPacket.getPort());
-					this.writeClientMessageTo("ack", sockaddress);
+					this.sendUdpPacket("ack", sockaddress);
 				}								
+				else
 				if(data.startsWith("clearAddressMap")) {
 					gui.writeClientMessage("clearAddressMap");
 					clearAddressMap();
 				}		
+				else
 				if(data.startsWith("/") && data.contains(":")) {
 					gui.writeClientMessage("this data for socket Connection");
 					String key = data;

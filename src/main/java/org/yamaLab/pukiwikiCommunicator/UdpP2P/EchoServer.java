@@ -99,16 +99,16 @@ public class EchoServer implements Runnable {
 						gui.setIpPort(ix, "", "", "server");
 						ix++;
 					}
-					ix=0;
+					addressMap.put(recvkey, address);					
 					for(String key : addressMap.keySet()) {
 						gui.writeServerMessage("known key:" + key);
-						sendPacket = new DatagramPacket(recvkey.getBytes(), 0, recvkey.getBytes().length, addressMap.get(key));
-						for(int i=0;i<3;i++) socket.send(sendPacket);
-						sendPacket = new DatagramPacket(key.getBytes(), 0, key.getBytes().length, address);
-						for(int i=0;i<3;i++) socket.send(sendPacket);
+						   sendPacket = new DatagramPacket(recvkey.getBytes(), 0, recvkey.getBytes().length, addressMap.get(key));
+						   for(int i=0;i<3;i++) socket.send(sendPacket);
+						   sendPacket = new DatagramPacket(key.getBytes(), 0, key.getBytes().length, address);
+						   for(int i=0;i<3;i++) socket.send(sendPacket);
 					}
 					// あたらしいクライアントが追加された。
-					addressMap.put(recvkey, address);					
+					ix=0;					
 					for(String key : addressMap.keySet()) {
 						StringTokenizer st=new StringTokenizer(key,":");
 						String ips=st.nextToken();
@@ -121,7 +121,8 @@ public class EchoServer implements Runnable {
 						ix++;
 					}
 				}
-				sendPacket = new DatagramPacket(recvPacket.getData(), 0, recvPacket.getLength(), address);
+				String registAck="yourHole "+recvPacket.getAddress()+":"+recvPacket.getPort();
+				sendPacket = new DatagramPacket(registAck.getBytes(), 0, registAck.length(), address);
 				socket.send(sendPacket);
 			} catch (IOException e) {
 				e.printStackTrace();
