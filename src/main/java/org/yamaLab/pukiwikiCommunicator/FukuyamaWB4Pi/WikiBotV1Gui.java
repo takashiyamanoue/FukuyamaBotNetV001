@@ -1,3 +1,4 @@
+
 package org.yamaLab.pukiwikiCommunicator.FukuyamaWB4Pi;
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -18,6 +19,7 @@ import org.yamaLab.TwitterConnector.Util;
 import org.yamaLab.pukiwikiCommunicator.CommandReceiver;
 import org.yamaLab.pukiwikiCommunicator.MainController;
 import org.yamaLab.pukiwikiCommunicator.SBUtil;
+import org.yamaLab.pukiwikiCommunicator.DGA.DGA;
 import org.yamaLab.pukiwikiCommunicator.UdpP2P.UdpP2P;
 
 import twitter4j.Status;
@@ -115,6 +117,7 @@ public class WikiBotV1Gui extends JFrame implements CommandReceiver, ClassWithJT
 	private JLabel idListLabel;
 	
 	private UdpP2P udpP2P;
+	private DGA dga;
 
 	/**
 	 * Launch the application.
@@ -145,6 +148,8 @@ public class WikiBotV1Gui extends JFrame implements CommandReceiver, ClassWithJT
 		udpP2P.setSetting(setting);
 		udpP2P.putApplicationTable("service", mainController);
 		mainController.putApplicationTable("udpP2P", udpP2P);
+		dga=new DGA(mainController);
+		dga.setGui(this.mainTabPane);
 	}
 	
 	public WikiBotV1Gui() {
