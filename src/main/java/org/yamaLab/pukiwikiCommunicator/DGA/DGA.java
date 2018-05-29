@@ -117,7 +117,8 @@ public class DGA implements Runnable
 String[] domains = new String[100];
 	
 public void accessDGADomain(){
-	
+	Calendar cal = Calendar.getInstance();
+	mkDomainName(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH)+1,cal.get(Calendar.DATE));	
 	for(int i=0;i<100;i++) {
 		System.out.println(domains[i]);
 	
